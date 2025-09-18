@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ian7672 Repository Search</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ffffff 0%, #373761 50%, #16213e 100%);
+    background-attachment: fixed;
+    color: #e6e6e6;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(120, 255, 214, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 
+      0 20px 50px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  
+  h1 {
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-size: 2.2rem;
+    text-shadow: 0 0 20px rgba(120, 119, 198, 0.3);
+  }
+  
+  .description {
+    color: #b8b8b8;
+    font-size: 1.1rem;
+  }
+  
+  .search-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .search-container {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  input, select, button {
+    padding: 14px;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #ffffff;
+  }
+  
+  input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  input:focus, select:focus {
+    border-color: rgba(120, 119, 198, 0.6);
+    outline: none;
+    box-shadow: 
+      0 0 0 3px rgba(120, 119, 198, 0.2),
+      0 0 20px rgba(120, 119, 198, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+  }
+  
+  select {
+    cursor: pointer;
+  }
+  
+  select option {
+    background: #1a1a2e;
+    color: #ffffff;
+    border: none;
+  }
+  
+  #searchInput {
+    padding-left: 45px;
+    width: 100%;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  #moduleList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    width: 100%;
+    background: rgba(30, 30, 48, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    z-index: 1000;
+    box-shadow: 
+      0 10px 30px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    display: none;
+  }
+  
+  #moduleList li {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  #moduleList li:last-child {
+    border-bottom: none;
+  }
+  
+  #moduleList li:hover {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+  }
+  
+  .module-link {
+    text-decoration: none;
+    color: #7dd3fc;
+    display: block;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .module-link:hover {
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  }
+  
+  .category {
+    display: inline-block;
+    background: rgba(120, 119, 198, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #a78bfa;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 10px;
+    border: 1px solid rgba(120, 119, 198, 0.3);
+  }
+  
+  .no-results, .loading {
+    padding: 15px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+  }
+  
+  .error {
+    color: #fca5a5;
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    margin-top: 15px;
+    display: none;
+  }
+  
+  .results-count {
+    margin-top: 15px;
+    color: #b8b8b8;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .btn {
+    background: rgba(120, 119, 198, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(120, 119, 198, 0.4);
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn:hover {
+    background: rgba(120, 119, 198, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(120, 119, 198, 0.2);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+  }
+  
+  .btn-secondary {
+    background: rgba(156, 163, 175, 0.3);
+    border-color: rgba(156, 163, 175, 0.4);
+  }
+  
+  .btn-secondary:hover {
+    background: rgba(156, 163, 175, 0.4);
+    box-shadow: 0 5px 15px rgba(156, 163, 175, 0.2);
+  }
+  
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  .github-info {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    color: #b8b8b8;
+    font-size: 14px;
+  }
+  
+  .github-info a {
+    color: #7dd3fc;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .github-info a:hover {
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  }
+  
+  /* Results Section Styles */
+  .results-section {
+    margin-top: 30px;
+    display: none;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    padding: 20px;
+  }
+  
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .results-title {
+    font-size: 1.5rem;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(120, 119, 198, 0.2);
+  }
+  
+  .results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .results-list li {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin-bottom: 2px;
+  }
+  
+  .results-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .results-list li:hover {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+  }
+  
+  .results-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 20px;
+  }
+  
+  .pagination-info {
+    color: #b8b8b8;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .results-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #b8b8b8;
+  }
+  
+  .results-per-page select {
+    padding: 8px;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(120, 119, 198, 0.4);
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(120, 119, 198, 0.6);
+  }
+  
+  @media (max-width: 600px) {
+    .container {
+      padding: 20px;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    .search-section {
+      flex-direction: column;
+    }
+    
+    .search-container {
+      width: 100%;
+    }
+    
+    .results-count {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .action-buttons {
+      width: 100%;
+      justify-content: flex-start;
+    }
+    
+    .results-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .pagination-controls {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  /* Animation for loading spinner */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .fa-spinner {
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Glow effects */
+  .btn:hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+  }
+  
+  .btn:hover::before {
+    left: 100%;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><i class="fas fa-search"></i> Ian7672 Repository Search</h1>
+    <p class="description">Find various modules, applications, and tools from Ian7672's GitHub repository</p>
+  </header>
+  
+  <div class="search-section">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="searchInput" placeholder="Search modules..." />
+      <ul id="moduleList"></ul>
+    </div>
+    
+    <select id="categorySelect">
+      <option value="">All Categories</option>
+      <option value="magisk" selected>Magisk Module</option>
+      <option value="flutter">Flutter</option>
+      <option value="laravel">Laravel</option>
+      <option value="android">Android</option>
+      <option value="html">HTML</option>
+      <option value="windows">Windows</option>
+      <option value="portable">Portable Apps</option>
+      <option value="more">Others (More)</option>
+    </select>
+  </div>
+  
+  <div id="errorMessage" class="error"></div>
+  
+  <div class="results-count">
+    <span id="resultsText">Loading Magisk modules...</span>
+    <div class="action-buttons">
+      <button class="btn btn-danger" id="clearSearch">
+        <i class="fas fa-times"></i> Clear Search
+      </button>
+    </div>
+  </div>
+  
+  <!-- Results Section -->
+  <div class="results-section" id="resultsSection">
+    <div class="results-header">
+      <h2 class="results-title">Search Results</h2>
+    </div>
+    <ul class="results-list" id="resultsList"></ul>
+    <div class="results-footer">
+      <div class="pagination-info" id="paginationInfo">Showing 0 results</div>
+      <div class="pagination-controls">
+        <button class="btn btn-secondary" id="prevPageBtn">
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <button class="btn" id="nextPageBtn">
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+      <div class="results-per-page">
+        <span>Show:</span>
+        <select id="resultsPerPage">
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <div class="github-info">
+    <p>Data retrieved from <a href="https://github.com/Ian7672/json-list/" target="_blank">Ian7672/json-list</a> | 
+    View GitHub profile: <a href="https://github.com/Ian7672" target="_blank">Ian7672</a></p>
+  </div>
+</div>
+
+<script>
+const BASE_URL = "https://github.com/Ian7672/";
+const RAW_BASE = "https://raw.githubusercontent.com/Ian7672/json-list/main/";
+const categories = {
+  "magisk": "Magisk Module",
+  "flutter": "Flutter",
+  "laravel": "Laravel", 
+  "android": "Android",
+  "html": "HTML",
+  "windows": "Windows",
+  "portable": "Portable Apps",
+  "more": "Others"
+};
+
+let allModules = [];
+let filteredModules = [];
+let currentPage = 1;
+let resultsPerPage = 20;
+
+// DOM Elements
+const resultsSection = document.getElementById('resultsSection');
+const resultsList = document.getElementById('resultsList');
+const paginationInfo = document.getElementById('paginationInfo');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+const resultsPerPageSelect = document.getElementById('resultsPerPage');
+const categorySelect = document.getElementById('categorySelect');
+const moduleListElement = document.getElementById('moduleList');
+const resultsTextElement = document.getElementById('resultsText');
+
+// Function to show error
+function showError(message) {
+  const errorDiv = document.getElementById('errorMessage');
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  
+  // Hide error after 5 seconds
+  setTimeout(() => {
+    errorDiv.style.display = 'none';
+  }, 5000);
+}
+
+// Fetch all JSON from each category
+function fetchAllModules() {
+  // Show loading state
+  moduleListElement.innerHTML = '<li class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</li>';
+  moduleListElement.style.display = 'block';
+  resultsTextElement.textContent = 'Loading modules...';
+  
+  const categoryPromises = Object.keys(categories).map(cat => {
+    return fetch(`${RAW_BASE}${cat}/list.json`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load category ${cat}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        return data.nama.map(name => ({
+          nama: name, 
+          kategori: cat,
+          kategoriLabel: categories[cat]
+        }));
+      })
+      .catch(error => {
+        console.error(`Error fetching ${cat}:`, error);
+        showError(`Cannot load category ${categories[cat]}`);
+        return [];
+      });
+  });
+
+  Promise.all(categoryPromises)
+    .then(results => {
+      allModules = results.flat();
+      // Clear loading state
+      moduleListElement.style.display = 'none';
+      
+      // Set kategori Magisk sebagai default
+      categorySelect.value = 'magisk';
+      // Tampilkan hasil untuk kategori Magisk
+      updateResultsText(`Loaded ${allModules.length} modules from all categories`);
+      showResults();
+    })
+    .catch(error => {
+      console.error('Error fetching modules:', error);
+      showError('Failed to load module data. Please try again.');
+      // Clear loading state even on error
+      moduleListElement.style.display = 'none';
+      resultsTextElement.textContent = 'Failed to load modules';
+    });
+}
+
+// Filter modules based on search and category
+function filterModules() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const category = document.getElementById("categorySelect").value;
+
+  filteredModules = allModules.filter(m => 
+    m.nama.toLowerCase().includes(search) &&
+    (category === "" || m.kategori === category)
+  );
+  
+  return filteredModules;
+}
+
+// Render module list in dropdown
+function renderList() {
+  const filtered = filterModules();
+  const list = document.getElementById("moduleList");
+
+  // Hide list if no search
+  if (document.getElementById("searchInput").value === "" && 
+      document.getElementById("categorySelect").value === "") {
+    list.style.display = 'none';
+    updateResultsText(`Loaded ${allModules.length} modules from all categories`);
+    hideResultsSection();
+    return;
+  }
+
+  // Update search results text
+  updateResultsText(`Found ${filtered.length} results`);
+  
+  if (filtered.length === 0) {
+    list.innerHTML = '<li class="no-results">No modules found.</li>';
+    list.style.display = 'block';
+    hideResultsSection();
+    return;
+  }
+
+  list.innerHTML = '';
+  filtered.forEach(m => {
+    const li = document.createElement("li");
+    
+    const linkContainer = document.createElement("div");
+    linkContainer.style.display = 'flex';
+    linkContainer.style.justifyContent = 'space-between';
+    linkContainer.style.alignItems = 'center';
+    
+    const a = document.createElement("a");
+    a.href = BASE_URL + m.nama;
+    a.textContent = m.nama;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "module-link";
+    
+    const catSpan = document.createElement("span");
+    catSpan.textContent = m.kategoriLabel;
+    catSpan.className = "category";
+    
+    linkContainer.appendChild(a);
+    linkContainer.appendChild(catSpan);
+    
+    li.appendChild(linkContainer);
+    list.appendChild(li);
+  });
+  
+  list.style.display = 'block';
+  
+  // Show results in the results section
+  showResults();
+}
+
+// Update results text
+function updateResultsText(text) {
+  document.getElementById('resultsText').textContent = text;
+}
+
+// Show results section
+function showResults() {
+  filterModules();
+  
+  if (filteredModules.length === 0) {
+    hideResultsSection();
+    return;
+  }
+  
+  currentPage = 1;
+  updateResults();
+  resultsSection.style.display = 'block';
+}
+
+// Hide results section
+function hideResultsSection() {
+  resultsSection.style.display = 'none';
+}
+
+// Update results with current page
+function updateResults() {
+  const startIndex = (currentPage - 1) * resultsPerPage;
+  const endIndex = Math.min(startIndex + resultsPerPage, filteredModules.length);
+  const pageResults = filteredModules.slice(startIndex, endIndex);
+  
+  // Update results list
+  resultsList.innerHTML = '';
+  pageResults.forEach(m => {
+    const li = document.createElement("li");
+    
+    const linkContainer = document.createElement("div");
+    linkContainer.style.display = 'flex';
+    linkContainer.style.justifyContent = 'space-between';
+    linkContainer.style.alignItems = 'center';
+    
+    const a = document.createElement("a");
+    a.href = BASE_URL + m.nama;
+    a.textContent = m.nama;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "module-link";
+    
+    const catSpan = document.createElement("span");
+    catSpan.textContent = m.kategoriLabel;
+    catSpan.className = "category";
+    
+    linkContainer.appendChild(a);
+    linkContainer.appendChild(catSpan);
+    
+    li.appendChild(linkContainer);
+    resultsList.appendChild(li);
+  });
+  
+  // Update pagination info
+  paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${filteredModules.length} results`;
+  
+  // Enable/disable pagination buttons
+  prevPageBtn.disabled = currentPage === 1;
+  nextPageBtn.disabled = endIndex >= filteredModules.length;
+  
+  // Apply disabled styles
+  prevPageBtn.style.opacity = prevPageBtn.disabled ? '0.5' : '1';
+  nextPageBtn.style.opacity = nextPageBtn.disabled ? '0.5' : '1';
+}
+
+// Event listeners
+document.getElementById("searchInput").addEventListener("input", renderList);
+document.getElementById("categorySelect").addEventListener("change", renderList);
+
+// Click outside to hide the list
+document.addEventListener('click', (e) => {
+  const list = document.getElementById('moduleList');
+  const searchInput = document.getElementById('searchInput');
+  
+  if (e.target !== searchInput && !list.contains(e.target)) {
+    list.style.display = 'none';
+  }
+});
+
+// Focus on search input
+document.getElementById("searchInput").addEventListener("focus", () => {
+  const search = document.getElementById("searchInput").value;
+  if (search !== "") {
+    renderList();
+  }
+});
+
+// Clear search
+document.getElementById('clearSearch').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('categorySelect').value = 'magisk'; // Kembali ke Magisk
+  document.getElementById('moduleList').style.display = 'none';
+  updateResultsText(`Loaded ${allModules.length} modules from all categories`);
+  showResults();
+});
+
+// Pagination controls
+prevPageBtn.addEventListener('click', () => {
+  if (currentPage > 1) {
+    currentPage--;
+    updateResults();
+  }
+});
+
+nextPageBtn.addEventListener('click', () => {
+  const maxPage = Math.ceil(filteredModules.length / resultsPerPage);
+  if (currentPage < maxPage) {
+    currentPage++;
+    updateResults();
+  }
+});
+
+// Change results per page
+resultsPerPageSelect.addEventListener('change', () => {
+  resultsPerPage = parseInt(resultsPerPageSelect.value);
+  currentPage = 1;
+  updateResults();
+});
+
+// Load data when page loads
+document.addEventListener('DOMContentLoaded', fetchAllModules);
+</script>
+
+</body>
+</html>
