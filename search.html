@@ -125,12 +125,35 @@
   
   select {
     cursor: pointer;
+    background: rgba(120, 119, 198, 0.18);
+    color: #e6e6e6;
+    border: 1.5px solid rgba(120, 119, 198, 0.22);
+    box-shadow: 0 2px 12px 0 rgba(120,119,198,0.10), 0 1.5px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
+    min-width: 180px;
+    margin-left: 8px;
   }
-  
+
+  select:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.18);
+    background: rgba(56,189,248,0.12);
+    color: #38bdf8;
+  }
+
   select option {
-    background: #1a1a2e;
-    color: #ffffff;
+    background: rgba(120, 119, 198, 0.28);
+    color: #e6e6e6;
     border: none;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 10px 0;
   }
   
   #searchInput {
@@ -350,20 +373,47 @@
   }
   
   .results-list li {
-    padding: 12px 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 22px;
+    border-bottom: 1px solid rgba(120, 119, 198, 0.10);
     transition: all 0.3s ease;
-    border-radius: 8px;
-    margin-bottom: 2px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    background: rgba(120, 119, 198, 0.18);
+    box-shadow: 0 2px 12px 0 rgba(120,119,198,0.10), 0 1.5px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1.5px solid rgba(120, 119, 198, 0.22);
+    position: relative;
+    overflow: hidden;
   }
-  
+
   .results-list li:last-child {
     border-bottom: none;
   }
-  
+
   .results-list li:hover {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
+    background: linear-gradient(90deg, rgba(120,119,198,0.28) 0%, rgba(56,189,248,0.18) 100%);
+    box-shadow: 0 4px 24px 0 rgba(56,189,248,0.12), 0 2px 0 rgba(255,255,255,0.10);
+    border-color: rgba(56,189,248,0.22);
+    transform: scale(1.02);
+  }
+
+  .result-number {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #38bdf8;
+    background: rgba(56,189,248,0.12);
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-right: 2px;
+    box-shadow: 0 1px 6px rgba(56,189,248,0.10);
+    border: 1px solid rgba(56,189,248,0.18);
+    min-width: 38px;
+    text-align: center;
+    letter-spacing: 1px;
   }
   
   .results-footer {
@@ -658,60 +708,9 @@ function filterModules() {
   return filteredModules;
 }
 
-// Render module list in dropdown
+// Only show results in the results section below
 function renderList() {
-  const filtered = filterModules();
-  const list = document.getElementById("moduleList");
-
-  // Hide list if no search
-  if (document.getElementById("searchInput").value === "" && 
-      document.getElementById("categorySelect").value === "") {
-    list.style.display = 'none';
-    updateResultsText(`Loaded ${allModules.length} modules from all categories`);
-    hideResultsSection();
-    return;
-  }
-
-  // Update search results text
-  updateResultsText(`Found ${filtered.length} results`);
-  
-  if (filtered.length === 0) {
-    list.innerHTML = '<li class="no-results">No modules found.</li>';
-    list.style.display = 'block';
-    hideResultsSection();
-    return;
-  }
-
-  list.innerHTML = '';
-  filtered.forEach(m => {
-    const li = document.createElement("li");
-    
-    const linkContainer = document.createElement("div");
-    linkContainer.style.display = 'flex';
-    linkContainer.style.justifyContent = 'space-between';
-    linkContainer.style.alignItems = 'center';
-    
-    const a = document.createElement("a");
-    a.href = BASE_URL + m.nama;
-    a.textContent = m.nama;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.className = "module-link";
-    
-    const catSpan = document.createElement("span");
-    catSpan.textContent = m.kategoriLabel;
-    catSpan.className = "category";
-    
-    linkContainer.appendChild(a);
-    linkContainer.appendChild(catSpan);
-    
-    li.appendChild(linkContainer);
-    list.appendChild(li);
-  });
-  
-  list.style.display = 'block';
-  
-  // Show results in the results section
+  filterModules();
   showResults();
 }
 
@@ -744,42 +743,50 @@ function updateResults() {
   const startIndex = (currentPage - 1) * resultsPerPage;
   const endIndex = Math.min(startIndex + resultsPerPage, filteredModules.length);
   const pageResults = filteredModules.slice(startIndex, endIndex);
-  
+
   // Update results list
   resultsList.innerHTML = '';
-  pageResults.forEach(m => {
+  pageResults.forEach((m, idx) => {
     const li = document.createElement("li");
-    
+
+    // Numbering column
+    const numSpan = document.createElement("span");
+    numSpan.className = "result-number";
+    numSpan.textContent = startIndex + idx + 1;
+    li.appendChild(numSpan);
+
+    // Info container
     const linkContainer = document.createElement("div");
     linkContainer.style.display = 'flex';
     linkContainer.style.justifyContent = 'space-between';
     linkContainer.style.alignItems = 'center';
-    
+    linkContainer.style.flex = '1';
+
     const a = document.createElement("a");
     a.href = BASE_URL + m.nama;
     a.textContent = m.nama;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
     a.className = "module-link";
-    
+
     const catSpan = document.createElement("span");
     catSpan.textContent = m.kategoriLabel;
     catSpan.className = "category";
-    
+
     linkContainer.appendChild(a);
     linkContainer.appendChild(catSpan);
-    
+
     li.appendChild(linkContainer);
     resultsList.appendChild(li);
   });
-  
+
   // Update pagination info
   paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${filteredModules.length} results`;
-  
+
   // Enable/disable pagination buttons
   prevPageBtn.disabled = currentPage === 1;
   nextPageBtn.disabled = endIndex >= filteredModules.length;
-  
+
   // Apply disabled styles
   prevPageBtn.style.opacity = prevPageBtn.disabled ? '0.5' : '1';
   nextPageBtn.style.opacity = nextPageBtn.disabled ? '0.5' : '1';
@@ -789,29 +796,15 @@ function updateResults() {
 document.getElementById("searchInput").addEventListener("input", renderList);
 document.getElementById("categorySelect").addEventListener("change", renderList);
 
-// Click outside to hide the list
-document.addEventListener('click', (e) => {
-  const list = document.getElementById('moduleList');
-  const searchInput = document.getElementById('searchInput');
-  
-  if (e.target !== searchInput && !list.contains(e.target)) {
-    list.style.display = 'none';
-  }
-});
+// Remove dropdown list hide on click outside (no longer needed)
 
 // Focus on search input
-document.getElementById("searchInput").addEventListener("focus", () => {
-  const search = document.getElementById("searchInput").value;
-  if (search !== "") {
-    renderList();
-  }
-});
+// Remove dropdown list show on focus (no longer needed)
 
 // Clear search
 document.getElementById('clearSearch').addEventListener('click', () => {
   document.getElementById('searchInput').value = '';
   document.getElementById('categorySelect').value = 'magisk'; // Kembali ke Magisk
-  document.getElementById('moduleList').style.display = 'none';
   updateResultsText(`Loaded ${allModules.length} modules from all categories`);
   showResults();
 });
